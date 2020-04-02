@@ -35,7 +35,6 @@ class PlayerList extends Component {
                         <ul className='text-left'>
                             {player_list}
                         </ul>
-                        <p>Note, use the names <em>exactly as written here</em> when adding results at <a href="https://stevehind-fifa-stats.builtwithdark.com/api/v1/add-result">the results add page</a></p>
                     </div>
                 </div>
         )}

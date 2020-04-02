@@ -14,36 +14,28 @@ const getClubs = (callback, error) => {
     .catch(error)
 }
 
+// post to the /add-result api
 const addResult = (data) => {
-
-    return window
-    .fetch(`${HOST}/add-result`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(
-        res => {
-            if (res.status === 200) {
-                console.log(res.json());
-                return res.json();
-            } else if (res.status === 400) {
-                return { error: res.json.message};
-            } else {
-                return res.json();
-            }
+    return axios.post(`${HOST}/add-result`, data)
+    .then(res => {
+        if (res.status === 200) {
+            console.log(`The server response was: %o`,res.data);
+            return res.data;
+        } else if (res.status === 400) {
+            return { error: res.message};
+        } else {
+            return res.data;
+        }
     })
     .then(data => {
         if (!data || data.error) {
-            console.log("API error: ", {data});
+            console.log("API error: %o", {data});
             throw Error ("API Error");
         } else {
+            console.log(`The thing the function will return is: %o`,data);
             return data;
         }
     });
-        
 }
 
 const api = {

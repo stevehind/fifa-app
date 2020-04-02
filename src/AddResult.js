@@ -10,10 +10,12 @@ class AddResults extends Component {
         this.state = {
             clicked: false,
             players: [],
+            // TODO: what is this going to be eventually? Set it to an empty version of that.
             submitted: null,
-            error: null,
+            error: "",
+            // TODO: what is this going to be eventually? Set it to an empty version of that.
             result: null,
-            clubs: null
+            clubs: []
         }
 
         this.submit = this.submit.bind(this);
@@ -30,7 +32,7 @@ class AddResults extends Component {
             (result) => {
                 this.setState({clubs: result.data});
             }
-        )
+        );
     }
 
     handleTypedChange = event => {
@@ -58,6 +60,7 @@ class AddResults extends Component {
     async submit(ev) {
         ev.preventDefault();
 
+        // hard coding with inputs
         let body = {
             home : this.state.home,
             home_score: this.state.home_score,
@@ -66,23 +69,31 @@ class AddResults extends Component {
             comment: this.state.comment
         }
 
+        let error_message = "Error: didn't post to server. Make sure you've provided two different players' names, and two scores."
+
         api.addResult(body)
         .then(response => {
             if (response.error) {
                 this.setState({
                     submitted: false,
-                    error: response.error.message
+                    error: error_message
                 });
-                console.log(response);
+                console.log(`The error response was: %o`,response);
             } else {
                 this.setState({
                     submitted: true,
-                    result: response.body
+                    result: response
                 })
-                console.log(response);
+                console.log(`Result logged to the server: %o`,response);
             }
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(`The error response was: %o`,err);
+            this.setState({
+                submitted: false,
+                error: error_message
+            })
+        });
     }
 
     handleReveal = (event) => {
@@ -116,17 +127,6 @@ class AddResults extends Component {
             <option>{club.name}</option>
         );
 
-        console.log(this.state.players);
-        console.log(player_list);
-        console.log(this.state.clubs);
-
-        // const clubs_list = this.state.clubs
-        // .map(club => 
-        //      <option>{club.name}</option>
-        // );   
-            
-        // console.log(clubs_list);
-
         if(this.state.clicked && !this.state.submitted) return (
             
             <div className="small-container padding-top">
@@ -148,7 +148,7 @@ class AddResults extends Component {
                             value={home_team}
                             onChange={this.handleSelectChange}>
                                 <option>Chose a team...</option>
-                                
+                                {clubs_list}
                         </select>
                         <label>Score</label>
                         <input
@@ -171,7 +171,7 @@ class AddResults extends Component {
                             value={away_team}
                             onChange={this.handleSelectChange}>
                                 <option>Chose a team...</option>
-                            
+                                {clubs_list}
                         </select>
                         <label>Score</label>
                         <input
@@ -188,15 +188,18 @@ class AddResults extends Component {
                     </div>
                 </form>
                 <button onClick={this.submit}>Add!</button>
-                {this.state.submitted === false && 
-                    <p style={{ color: 'red' }}>{error}</p>
-                }
+                <div>
+                    {this.state.submitted === false && 
+                    <h2 style={{ color: 'red' }}>{error}</h2>
+                    }
+                </div>
+
             </div>
         )
 
         else if(this.state.submitted) return (
             <div className="small-container">
-                <p>There was a result</p>
+                <p>Server says: {this.state.result}</p>
                 <button onClick={this.handleReveal}>Add another</button>
             </div>
         )
