@@ -16,6 +16,11 @@ function App() {
           <AddResult/>
         </div>
         <div>
+          <h2><a href="/api/v1/table">View the table</a></h2>
+          <h2><a href="/api/v1/results">View all results</a></h2>
+          <h2><a href="/api/v1/kotl">View the King of the Lounge</a></h2>
+        </div>
+        <div>
           <PlayerList/>
         </div>
       </div>
