@@ -3,6 +3,7 @@ import logo from './android-chrome-512x512.png';
 import './App.css';
 import PlayerList from './PlayerList';
 import AddResult from './AddResult';
+import ResultsTable from './ResultsTable';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <div>
           <h2><a href="/api/v1/table">View the table</a></h2>
           <h2><a href="/api/v1/results">View all results</a></h2>
+          <ResultsTable />
           <h2><a href="/api/v1/kotl">View the King of the Lounge</a></h2>
         </div>
         <div>

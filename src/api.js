@@ -38,10 +38,19 @@ const addResult = (data) => {
     });
 }
 
+// GET from the /table endpoint
+const getResultsTableData = (callback, error) => {
+    axios.get(`${HOST}/table`)
+    .then(callback => console.log("Api result was: %o", callback))
+    .catch(error)
+}
+
+
 const api = {
     getPlayers : getPlayers,
     getClubs: getClubs,
-    addResult : addResult
+    addResult : addResult,
+    getTable : getResultsTableData
 }
 
 export default api;
