@@ -16,7 +16,6 @@ class PlayerList extends Component {
         api.getPlayers(
             (result) => {
                 this.setState({players: result.data});
-                console.log(result.data);
             }
         )
     }
