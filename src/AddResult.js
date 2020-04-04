@@ -198,8 +198,9 @@ class AddResults extends Component {
         )
 
         else if(this.state.submitted) return (
-            <div className="small-container">
-                <p>Server says: {this.state.result}</p>
+            <div className="small-container padding-top padding-bottom">
+                <p>Success! Result saved to the sever.</p>
+        <p>Winner was: {result.winner} by {result.goal_diff}.</p>
                 <button onClick={this.handleReveal}>Add another</button>
             </div>
         )
