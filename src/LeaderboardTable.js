@@ -1,29 +1,23 @@
 import React, { Component } from 'react';
 
-class ResultsTable extends Component {
+class LeaderboardTable extends Component {
 
     buildHeaders (tableData) {
         const first_entry_in_list = tableData[0];
 
-        const keys = Object.keys(first_entry_in_list);
+        const entry_values = Object.values(first_entry_in_list)[0];
+
+        const keys = Object.keys(entry_values);
+
+        // TODO: check whether starts with alpha char + _, and trim off only if it does
+        const formatted_headers = keys.map(key => key.substring(2));
 
         return (
             <tr>
-                {keys.map(header => <th>{header}</th>)}
+                <th>Name</th>
+                {formatted_headers.map(header => <th>{header}</th>)}
             </tr>
         )
-
-        // {
-        //     away: "Woolgar",
-        //     away_score: 2,
-        //     comment: "Silly red for Griezmann",
-        //     goal_diff: 1,
-        //     home: "Art",
-        //     home_score: 3,
-        //     report_time: "2020-04-04T14:11:19Z",
-        //     winner: "Art"
-        //     }
-
     }
 
     buildRows (tableData) {
@@ -42,6 +36,7 @@ class ResultsTable extends Component {
             }
 
             return <tr>
+                <td>{Object.keys(player)[0]}</td>
                 {formatted_player_data(player_data_values_list)}
             </tr>
         })    
@@ -61,4 +56,4 @@ class ResultsTable extends Component {
 
 }
 
-export default ResultsTable;
+export default LeaderboardTable;
