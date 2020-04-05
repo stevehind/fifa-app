@@ -22,7 +22,7 @@ const addResult = (data) => {
             console.log(`The server response was: %o`,res.data);
             return res.data;
         } else if (res.status === 400) {
-            return { error: res.message};
+            return { error: res.data };
         } else {
             return res.data;
         }
@@ -38,10 +38,42 @@ const addResult = (data) => {
     });
 }
 
+// GET from the /table endpoint
+const getLeaderboardTableData = (callback, error) => {
+    axios.get(`${HOST}/table`)
+    .then(callback)
+    .catch(error)
+}
+
+// GET from the /results endpoint
+const getResultsListData = (callback, error) => {
+    axios.get(`${HOST}/results`)
+    .then(callback)
+    .then(error)
+}
+
+// Get from the /kotl endpoint
+const getKOTLData = (callback, error) => {
+    axios.get(`${HOST}/kotl`)
+    .then(callback)
+    .then(error)
+}
+
+// Get from the /h2h endpoint, with player names in URL
+const getH2HData = (names) => {
+    return axios.get(`${HOST}/h2h/${names[0]}/${names[1]}`)
+    .then(callback => callback)
+    .then(error => error)
+}
+
 const api = {
     getPlayers : getPlayers,
     getClubs: getClubs,
-    addResult : addResult
+    addResult : addResult,
+    getLeaderboardTableData : getLeaderboardTableData,
+    getResultsListData: getResultsListData,
+    getKOTLData: getKOTLData,
+    getH2HData: getH2HData
 }
 
 export default api;
