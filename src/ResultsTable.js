@@ -9,40 +9,26 @@ class ResultsTable extends Component {
 
         return (
             <tr>
-                {keys.map(header => <th>{header}</th>)}
+                {keys.map(header => {
+                    return <th>{header}</th>
+                })}
             </tr>
         )
-
-        // {
-        //     away: "Woolgar",
-        //     away_score: 2,
-        //     comment: "Silly red for Griezmann",
-        //     goal_diff: 1,
-        //     home: "Art",
-        //     home_score: 3,
-        //     report_time: "2020-04-04T14:11:19Z",
-        //     winner: "Art"
-        //     }
-
     }
 
     buildRows (tableData) {
-        return tableData.map(player => {
+        return tableData.map(result => {
 
             // dict
-            const player_data = Object.values(player);
-
-            // list
-            const player_data_values = Object.values(player_data)[0];
-            const player_data_values_list = Object.values(player_data_values);
+            const result_data = Object.values(result);
 
             // list of <td>s
             const formatted_player_data = (input) => {
-                return input.map(data => <td>{Math.round(data)}</td>);
+                return input.map(data => <td>{data}</td>);
             }
 
             return <tr>
-                {formatted_player_data(player_data_values_list)}
+                {formatted_player_data(result_data)}
             </tr>
         })    
     }

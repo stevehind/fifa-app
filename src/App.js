@@ -5,8 +5,10 @@ import PlayerList from './PlayerList';
 import AddResult from './AddResult';
 import LeaderboardPage from './LeaderboardPage';
 import ResultsPage from './ResultsPage';
+import H2HPage from './H2HPage';
 
 function App() {
+
   return (
     <div className="App">
       <header className="App-header">
@@ -14,14 +16,17 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
       </header>
       <div className="App-body">
-        <div className="alternate-background">
+        <div>
           <AddResult/>
         </div>
-        <div>
+        <div className="padding-top padding-bottom">
           <LeaderboardPage />
-          <ResultsPage className="alternate-background"/>
-          <h2><a href="/api/v1/results">View all results</a></h2>
-          <h2><a href="/api/v1/kotl">View the King of the Lounge</a></h2>
+        </div>
+        <div>
+          <H2HPage />
+        </div>
+        <div className="padding-bottom">
+          <ResultsPage />
         </div>
         <div>
           <PlayerList/>

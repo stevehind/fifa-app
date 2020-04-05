@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import api from './api';
 
-import ResultsTable from './LeaderboardTable';
+import ResultsTable from './ResultsTable';
 
 class ResultsPage extends Component {
 
@@ -36,7 +36,7 @@ class ResultsPage extends Component {
     render() {
 
         if (this.state.clicked) {
-            return <div className='small-container'>
+            return <div className='small-container padding-top'>
             <button onClick={this.handleHide}>Hide Results</button>
             <h2>All Results</h2>
             {this.state.table_data === undefined ? 
@@ -44,9 +44,10 @@ class ResultsPage extends Component {
                 :
                 <ResultsTable tableData={this.state.table_data}/>    
             }
+            <button onClick={this.handleHide}>Hide Results</button>
             </div>
         } else {
-            return <div className="small-container padding-top padding-bottom">
+            return <div className="small-container padding-top">
                 <button onClick={this.handleReveal}>View all Results</button>
             </div> 
         }

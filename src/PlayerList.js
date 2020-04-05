@@ -8,7 +8,8 @@ class PlayerList extends Component {
         super(props)
 
         this.state = {
-            players: []
+            players: [],
+            clicked: false
         }
     }
 
@@ -20,24 +21,46 @@ class PlayerList extends Component {
         )
     }
 
+    handleReveal = (event) => {
+        event.preventDefault();
+        this.setState({clicked: true})
+    }
+
+    handleHide = (event) => {
+        event.preventDefault();
+        this.setState({clicked: false})
+    }
+
     render(){
 
         const player_list = this.state.players
-            .map(player => 
-                <li>{player.name}: {player.ps_handle}</li>
-            );
+            .map(player => {
+                return <tr>
+                    <td>{player.name}</td>
+                    <td>{player.ps_handle}</td>
+                </tr>
+            });
 
-        return(
+        if (this.state.clicked) {
+            return(
                 <div className='small-container'>
+                    <button onClick={this.handleHide}>Hide Players</button>
                     <h3>Players and their PS4 handles:</h3>
-                    <div>
-                        <ul className='text-left'>
-                            {player_list}
-                        </ul>
-                    </div>
+                    <tr>
+                        <th>Player</th>
+                        <th>PS4 Handle</th>
+                    </tr>
+                    {player_list}
                 </div>
-        )}
+            )
+        }   else 
+        {
+            return <div className="small-container padding-top">
+            <button onClick={this.handleReveal}>View Players</button>
+            </div> 
+        } 
 
+    }
 }
 
 export default PlayerList;
