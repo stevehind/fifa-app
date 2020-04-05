@@ -14,7 +14,7 @@ class H2HPage extends Component {
             table_data: undefined,
             // names: ["Sven", "Doug"],
             e_values: [],
-            elos: [],
+            elos: undefined,
             submitted: false
         };
 
@@ -22,13 +22,13 @@ class H2HPage extends Component {
     }
 
     extractElos(data) {
-        console.log("Data passed to Elo function is: %o", data);
-
         let elos = data.map(entry => {
-            let elo = Object.values(entry)[0].a_Elo;
+            let elo = {
+                name: Object.keys(entry)[0],
+                elo: Object.values(entry)[0].a_Elo
+            };
             return elo;
         })
-        
         return elos
     }
 
@@ -55,7 +55,7 @@ class H2HPage extends Component {
 
     }
 
-    computeWinChance(data, names) {
+    computeWinChance(names, data) {
         const list_of_r = data.map(rating => Math.pow(10, (rating / 400)))
 
         const sum_of_r = list_of_r.reduce((a,b) => a + b, 0);
@@ -87,7 +87,6 @@ class H2HPage extends Component {
 
         api.getH2HData(names)
         .then(result => {
-            console.log("Api call result was: %o",result.data);
             this.setState({table_data: result.data});
             let elos = this.extractElos(result.data);
             this.setState({elos: elos});
@@ -136,19 +135,22 @@ class H2HPage extends Component {
                 <div>
                     <h4>Elo-Implied Win Probabilities in Next Game</h4>
                     {
-                        this.state.table_data === undefined || this.state.player_1 === undefined || this.state.player_2 === undefined ? 
+                        this.state.table_data === undefined || this.state.player_1 === undefined || this.state.player_2 === undefined || this.state.elos === undefined ?
                             <p><em>Loading win probabilities...</em></p>
                             :
                             <table>
                             <tr>
-                                {this.computeWinChance(this.state.elos, [this.state.player_1, this.state.player_2])}
+                                {this.computeWinChance(
+                                    Object.values(this.state.elos).map(value => value.name),
+                                    Object.values(this.state.elos).map(value => value.elo)
+                                )}
                             </tr>
                         </table>
                     } 
                 </div>
                     <h4>Head to Head Leaderboard</h4>
                     {
-                        this.state.table_data === undefined || this.state.player_1 === undefined || this.state.player_2 === undefined ? 
+                        this.state.table_data === undefined || this.state.player_1 === undefined || this.state.player_2 === undefined || this.state.elos === undefined ? 
                             <p><em>Loading leaderboard...</em></p>
                             :
                             <H2HTable tableData={this.state.table_data} className="alternate-background"/>    
