@@ -16,10 +16,10 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
       </header>
       <div className="App-body">
-        <div>
+        <div className="padding-bottom">
           <AddResult/>
         </div>
-        <div className="padding-top padding-bottom">
+        <div className="padding-bottom">
           <LeaderboardPage />
         </div>
         <div>
@@ -32,6 +32,9 @@ function App() {
           <PlayerList/>
         </div>
       </div>
+      <footer className="App-footer">
+        <p>©Steve Hind, 2020.</p>
+      </footer>
     </div>
   );
 }
