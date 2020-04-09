@@ -13,7 +13,6 @@ class AddResults extends Component {
             clicked: false,
             players: [],
             submitted: null,
-            error: "",
             clubs: []
         }
 
@@ -69,6 +68,13 @@ class AddResults extends Component {
         }
     }
 
+    resultLoaded = state => {
+        if (state.result === undefined && state.error === undefined) {
+            return false
+        } else
+            return true
+    }
+
     getFormData = object => Object.keys(object).reduce((formData, key) => {
         formData.append(key, object[key]);
         return formData;
@@ -83,6 +89,7 @@ class AddResults extends Component {
             home_score: this.state.home_score,
             away: this.state.away,
             away_score: this.state.away_score,
+            // uncomment below for development
             //comment: "dev-test"
             comment: this.state.comment
         }
@@ -211,8 +218,6 @@ class AddResults extends Component {
                     :
                     <button onClick={this.submit} className="muted-button" disabled={true}>Fill out the form!</button>
                 }
-                
-                {/* <button onClick={this.submit}>Add!</button> */}
                 <div>
                     {this.state.submitted === false && 
                     <h2 style={{ color: 'red' }}>{error}</h2>
@@ -222,10 +227,17 @@ class AddResults extends Component {
             </div>
         )
 
-        else if(this.state.submitted) return (
+        else if(this.state.submitted && !this.resultLoaded(this.state)) return (
+            <div className="small-container padding-top padding-bottom">
+                <p><em>Sending result to server...</em></p>
+                <p><em>Please wait...</em></p>
+            </div>
+        )
+
+        else if(this.state.submitted && this.resultLoaded(this.state)) return (
             <div className="small-container padding-top padding-bottom">
                 <p>Success! Result saved to the sever.</p>
-        <p>Winner was: {result.winner} by {result.goal_diff}.</p>
+                <p>Winner was: {result.winner} by {result.goal_diff}.</p>
                 <button onClick={this.handleReveal}>Add another</button>
             </div>
         )
