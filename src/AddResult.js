@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import api from './api';
 
+const CHOSE_A_PLAYER_DEFAULT = "Chose a player..."
+
 class AddResults extends Component {
 
     constructor(props){
@@ -10,11 +12,8 @@ class AddResults extends Component {
         this.state = {
             clicked: false,
             players: [],
-            // TODO: what is this going to be eventually? Set it to an empty version of that.
             submitted: null,
             error: "",
-            // TODO: what is this going to be eventually? Set it to an empty version of that.
-            result: null,
             clubs: []
         }
 
@@ -46,9 +45,28 @@ class AddResults extends Component {
     handleSelectChange = event => {
         const {name,value} = event.target;
 
-        this.setState({
-            [name] : value
-        });
+        if (value === CHOSE_A_PLAYER_DEFAULT) {
+            this.setState({
+                [name] : undefined
+            })
+        } else {
+            this.setState({
+                [name] : value
+            });
+        }
+    }
+
+    validateForm = state => {
+        if (
+            state.home === undefined ||
+            state.away === undefined ||
+            state.home_score === undefined ||
+            state.away_score === undefined
+        ) {
+            return false
+        } else {
+            return true
+        }
     }
 
     getFormData = object => Object.keys(object).reduce((formData, key) => {
@@ -60,12 +78,12 @@ class AddResults extends Component {
     async submit(ev) {
         ev.preventDefault();
 
-        // hard coding with inputs
         let body = {
             home : this.state.home,
             home_score: this.state.home_score,
             away: this.state.away,
             away_score: this.state.away_score,
+            //comment: "dev-test"
             comment: this.state.comment
         }
 
@@ -81,7 +99,7 @@ class AddResults extends Component {
                 console.log(`The error response was: %o`,response);
             } else {
                 this.setState({
-                    submitted: true,
+                    submitted: true,    
                     result: response
                 })
                 console.log(`Result logged to the server: %o`,response);
@@ -101,11 +119,11 @@ class AddResults extends Component {
         this.setState({
             clicked: true,
             submitted: null,
-            home: null,
-            home_score: null,
-            away: null,
-            away_score: null,
-            comment: null
+            home: undefined,
+            home_score: undefined,
+            away: undefined,
+            away_score: undefined,
+            comment: undefined
         })
     }
 
@@ -139,7 +157,7 @@ class AddResults extends Component {
                             name="home"
                             value={home}
                             onChange={this.handleSelectChange}>
-                                <option>Chose a player...</option>
+                                <option>{CHOSE_A_PLAYER_DEFAULT}</option>
                                 {player_list}    
                         </select>
                         <label>Team</label>
@@ -162,7 +180,7 @@ class AddResults extends Component {
                             name="away"
                             value={away}
                             onChange={this.handleSelectChange}>
-                                <option>Chose a player...</option>
+                                <option>{CHOSE_A_PLAYER_DEFAULT}</option>
                                 {player_list}    
                         </select>
                         <label>Team</label>
@@ -187,7 +205,14 @@ class AddResults extends Component {
                             onChange={this.handleTypedChange}/>
                     </div>
                 </form>
-                <button onClick={this.submit}>Add!</button>
+                {
+                    this.validateForm(this.state) ?
+                    <button onClick={this.submit}>Add result!</button>
+                    :
+                    <button onClick={this.submit} className="muted-button" disabled={true}>Fill out the form!</button>
+                }
+                
+                {/* <button onClick={this.submit}>Add!</button> */}
                 <div>
                     {this.state.submitted === false && 
                     <h2 style={{ color: 'red' }}>{error}</h2>

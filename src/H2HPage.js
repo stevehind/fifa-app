@@ -4,6 +4,8 @@ import api from './api';
 
 import H2HTable from './H2HTable';
 
+const CHOSE_A_PLAYER_DEFAULT = "Chose a player..."
+
 class H2HPage extends Component {
 
     constructor(props){
@@ -43,9 +45,15 @@ class H2HPage extends Component {
     handleSelectChange = event => {
         const {name,value} = event.target;
 
-        this.setState({
-            [name] : value
-        });
+        if (value === CHOSE_A_PLAYER_DEFAULT) {
+            this.setState({
+                [name] : undefined
+            })
+        } else {
+            this.setState({
+                [name] : value
+            });
+        }
     }
 
     calcE(r_list) {
@@ -111,7 +119,7 @@ class H2HPage extends Component {
                         name="player_1"
                         value={this.state.player_1}
                         onChange={this.handleSelectChange}>
-                        <option>Chose a player...</option>
+                        <option>{CHOSE_A_PLAYER_DEFAULT}</option>
                         {player_list}    
                     </select>
                         </td>    
@@ -121,14 +129,27 @@ class H2HPage extends Component {
                             name="player_2"
                             value={this.state.player_2}
                             onChange={this.handleSelectChange}>
-                            <option>Chose a player...</option>
+                            <option>{CHOSE_A_PLAYER_DEFAULT}</option>
                             {player_list}    
                         </select>
                         </td>
                     </tr>
                 </table>
             </form>
-            <button onClick={this.submit}>Calculate!</button>
+            {
+                ((this.state.player_1 === undefined) || (this.state.player_2 === undefined)) ?
+                <button
+                    className="muted-button"
+                    onClick={this.submit}
+                    disabled={((this.state.player_1 === undefined) || (this.state.player_2 === undefined))}
+                >Choose two players</button>
+                :
+                <button
+                    className="button"
+                    onClick={this.submit}
+                    disabled={((this.state.player_1 === undefined) || (this.state.player_2 === undefined))}
+                >Calculate!</button>
+            }
             {
                 this.state.submitted === true ?
                 <div>
@@ -158,7 +179,7 @@ class H2HPage extends Component {
                 <p>Players are ranked by their <a href='https://en.wikipedia.org/wiki/Elo_rating_system'>Elo rating</a>.</p>
             </div>
                 :
-                <p>Click "Calculate!" to see stats.</p>
+                <p>Choose two players and then click "Calculate!" to see stats.</p>
             }
         </div>
     }

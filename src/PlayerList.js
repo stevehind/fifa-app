@@ -55,7 +55,7 @@ class PlayerList extends Component {
             )
         }   else 
         {
-            return <div className="small-container padding-top">
+            return <div className="small-container padding-bottom">
             <button onClick={this.handleReveal}>View Players</button>
             </div> 
         } 
