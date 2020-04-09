@@ -12,7 +12,8 @@ class AddResults extends Component {
         this.state = {
             clicked: false,
             players: [],
-            submitted: null,
+            server_success: null,
+            submitted_to_server: null,
             clubs: []
         }
 
@@ -68,13 +69,6 @@ class AddResults extends Component {
         }
     }
 
-    resultLoaded = state => {
-        if (state.result === undefined && state.error === undefined) {
-            return false
-        } else
-            return true
-    }
-
     getFormData = object => Object.keys(object).reduce((formData, key) => {
         formData.append(key, object[key]);
         return formData;
@@ -83,6 +77,8 @@ class AddResults extends Component {
 
     async submit(ev) {
         ev.preventDefault();
+
+        this.setState({ submitted_to_server : true });
 
         let body = {
             home : this.state.home,
@@ -100,13 +96,15 @@ class AddResults extends Component {
         .then(response => {
             if (response.error) {
                 this.setState({
-                    submitted: false,
+                    submitted_to_server: true,
+                    server_success: false,
                     error: error_message
                 });
                 console.log(`The error response was: %o`,response);
             } else {
                 this.setState({
-                    submitted: true,    
+                    submitted_to_server: true,
+                    server_success : true,    
                     result: response
                 })
                 console.log(`Result logged to the server: %o`,response);
@@ -115,7 +113,8 @@ class AddResults extends Component {
         .catch(err => {
             console.log(`The error response was: %o`,err);
             this.setState({
-                submitted: false,
+                submitted_to_server: true,
+                server_success : false,
                 error: error_message
             })
         });
@@ -125,12 +124,13 @@ class AddResults extends Component {
         event.preventDefault();
         this.setState({
             clicked: true,
-            submitted: null,
+            submitted_to_server: null,
+            server_success: null,
             home: undefined,
             home_score: undefined,
             away: undefined,
             away_score: undefined,
-            comment: undefined
+            comment: null
         })
     }
 
@@ -152,7 +152,7 @@ class AddResults extends Component {
             <option>{club.name}</option>
         );
 
-        if(this.state.clicked && !this.state.submitted) return (
+        if(this.state.clicked && !this.state.server_success && !this.state.submitted_to_server) return (
             
             <div className="small-container padding-top">
                 <form>
@@ -219,7 +219,7 @@ class AddResults extends Component {
                     <button onClick={this.submit} className="muted-button" disabled={true}>Fill out the form!</button>
                 }
                 <div>
-                    {this.state.submitted === false && 
+                    {this.state.server_success === false && 
                     <h2 style={{ color: 'red' }}>{error}</h2>
                     }
                 </div>
@@ -227,14 +227,14 @@ class AddResults extends Component {
             </div>
         )
 
-        else if(this.state.submitted && !this.resultLoaded(this.state)) return (
+        else if(!this.state.server_success && this.state.submitted_to_server) return (
             <div className="small-container padding-top padding-bottom">
                 <p><em>Sending result to server...</em></p>
                 <p><em>Please wait...</em></p>
             </div>
         )
 
-        else if(this.state.submitted && this.resultLoaded(this.state)) return (
+        else if(this.state.server_success && this.state.submitted_to_server) return (
             <div className="small-container padding-top padding-bottom">
                 <p>Success! Result saved to the sever.</p>
                 <p>Winner was: {result.winner} by {result.goal_diff}.</p>
