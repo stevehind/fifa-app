@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-
 import api from './api';
-
 import H2HTable from './H2HTable';
 
 const CHOSE_A_PLAYER_DEFAULT = "Chose a player..."
@@ -14,7 +12,6 @@ class H2HPage extends Component {
         this.state = {
             players: [],
             table_data: undefined,
-            // names: ["Sven", "Doug"],
             e_values: [],
             elos: undefined,
             submitted: false
