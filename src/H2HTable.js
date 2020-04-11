@@ -1,22 +1,7 @@
 // @flow
 
 import * as React from 'react';
-
-type TableObjectValues = {
-    "a_Elo": number,
-    "b_Played": number,
-    "c_Wins": number,
-    "d_Draws": number,
-    "e_Losses": number,
-    "f_Pts": number,
-    "g_GoalDiff": number
-}
-
-export type TableObject = {
-    [player_name: string] : TableObjectValues
-};
-
-export type TableObjectList = Array<TableObject>;
+import type { TableObjectValues, TableObject, TableObjectList } from './api';
 
 type Props = {tableData: TableObjectList};
 

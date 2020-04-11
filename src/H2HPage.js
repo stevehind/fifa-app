@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { Component } from 'react';
 import api from './api';
+import type { AxiosResponse, PairOfNames, TableObject, TableObjectList, PlayerObjectList } from './api';
 import H2HTable from './H2HTable';
-import type { TableObjectList, TableObject } from './H2HTable';
 
 type Elo = {
     name: string,
@@ -13,25 +13,7 @@ type Elo = {
 
 type Elos = Array<Elo>;
 
-type PlayerObject = {
-    name: string,
-    ps_handle: string
-};
-
-type PlayerObjectList = Array<PlayerObject>;
-
-type AxiosResponse<DataType> = {
-    data: DataType,
-    status: number,
-    statusText: string,
-    headers: any,
-    config: any,
-    request: any
-};
-
 type PairOfRatings = [number, number];
-
-type PairOfNames = [string, string];
 
 type PairOfR = [number, number];
 
@@ -112,8 +94,6 @@ class H2HPage extends Component<Props, State> {
     }
 
     computeWinChance(names: PairOfNames, data: PairOfRatings): PairOfWinPctTDs{
-        console.log("Data are: %o", data);
-        console.log("names are: %o", names);
 
         // $FlowFixMe
         const list_of_r: PairOfR = data.map((rating: number) => Math.pow(10, (rating / 400)))

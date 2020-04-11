@@ -100,18 +100,15 @@ class AddResults extends Component {
                     server_success: false,
                     error: error_message
                 });
-                console.log(`The error response was: %o`,response);
             } else {
                 this.setState({
                     submitted_to_server: true,
                     server_success : true,    
                     result: response
                 })
-                console.log(`Result logged to the server: %o`,response);
             }
         })
         .catch(err => {
-            console.log(`The error response was: %o`,err);
             this.setState({
                 submitted_to_server: true,
                 server_success : false,
@@ -130,7 +127,8 @@ class AddResults extends Component {
             home_score: undefined,
             away: undefined,
             away_score: undefined,
-            comment: null
+            comment: null,
+            error: undefined
         })
     }
 
@@ -218,21 +216,23 @@ class AddResults extends Component {
                     :
                     <button onClick={this.submit} className="muted-button" disabled={true}>Fill out the form!</button>
                 }
-                <div>
-                    {this.state.server_success === false && 
-                    <h2 style={{ color: 'red' }}>{error}</h2>
-                    }
-                </div>
-
             </div>
         )
 
-        else if(!this.state.server_success && this.state.submitted_to_server) return (
+        else if(!this.state.server_success && this.state.submitted_to_server && this.state.error === undefined) return (
             <div className="small-container padding-top padding-bottom">
                 <p><em>Sending result to server...</em></p>
                 <p><em>Please wait...</em></p>
             </div>
         )
+
+        else if (!this.state.server_success && this.state.submitted_to_server && this.state.error) return (
+            <div className="small-container padding-top padding-bottom">
+                <h2 style={{ color: 'red' }}>{error}</h2>
+                <button onClick={this.handleReveal}>Try again</button>
+            </div>
+        )
+
 
         else if(this.state.server_success && this.state.submitted_to_server) return (
             <div className="small-container padding-top padding-bottom">
