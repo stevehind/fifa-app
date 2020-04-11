@@ -13,8 +13,9 @@
     "start": "react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build": "babel src/ -d lib/",
-    "prepublish": "npm run build",
+    "compile": "babel src/ -d lib/",
+    "build": "npm run compile && react-scripts build",
+    "prepublish": "npm run compile",
     "flow": "flow"
   },
   "eslintConfig": {
