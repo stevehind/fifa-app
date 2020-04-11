@@ -37,7 +37,7 @@ class LeaderboardPage extends Component {
                 :
                 <div>
                     <h4><b>{this.state.kotl_data.kotl_is}</b> is the The King of the Lounge.</h4>
-                    <p>They have been on top for {this.state.kotl_data.title_defended_for_games} games and {this.state.kotl_data.on_top_for_hrs} hours.</p>
+                    <p>They have defended their title for {this.state.kotl_data.title_defended_for_games} games and {this.state.kotl_data.on_top_for_hrs} hours.</p>
                 </div>
             } 
             {this.state.table_data === undefined ? 

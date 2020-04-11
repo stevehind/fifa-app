@@ -43,7 +43,7 @@ class PlayerList extends Component {
 
         if (this.state.clicked) {
             return(
-                <div className='small-container'>
+                <div className='small-container padding-bottom'>
                     <button onClick={this.handleHide}>Hide Players</button>
                     <h3>Players and their PS4 handles:</h3>
                     <tr>

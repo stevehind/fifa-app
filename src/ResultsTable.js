@@ -36,7 +36,7 @@ class ResultsTable extends Component {
     render() {
 
         return(
-            <div>
+            <div className="small-container">
                 <table>
                     <thead>{this.buildHeaders(this.props.tableData)}</thead>
                     <tbody>{this.buildRows(this.props.tableData)}</tbody>

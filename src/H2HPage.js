@@ -88,8 +88,6 @@ class H2HPage extends Component {
     async submit(ev) {
         ev.preventDefault();
 
-        console.log("Submitted!");
-
         this.setState({submitted: true});
         let names = [this.state.player_1, this.state.player_2]
 
