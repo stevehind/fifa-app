@@ -1,45 +1,62 @@
-import React, { Component } from 'react';
+// @flow
 
-class H2HTable extends Component {
+import * as React from 'react';
 
-    buildHeaders (tableData) {
-        const first_entry_in_list = tableData[0];
+type TableObjectValues = {
+    "a_Elo": number,
+    "b_Played": number,
+    "c_Wins": number,
+    "d_Draws": number,
+    "e_Losses": number,
+    "f_Pts": number,
+    "g_GoalDiff": number
+}
 
-        const entry_values = Object.values(first_entry_in_list)[0];
+export type TableObject = {
+    [player_name: string] : TableObjectValues
+};
 
-        const keys = Object.keys(entry_values);
+export type TableObjectList = Array<TableObject>;
 
+type Props = {tableData: TableObjectList};
+
+class H2HTable extends React.Component<Props> {
+
+    buildHeaders (tableData: TableObjectList) {
+
+        const first_entry_in_list: TableObject = tableData[0];
+        // $FlowFixMe
+        const first_entry_values: TableObjectValues = Object.values(first_entry_in_list)[0]; 
+        const keys: Array<string> = Object.keys(first_entry_values);
         // TODO: check whether starts with alpha char + _, and trim off only if it does
-        const formatted_headers = keys.map(key => key.substring(2));
+        const formatted_headers: Array<string> = keys.map((key: string) => key.substring(2));
 
         return (
             <tr>
                 <th>Name</th>
-                {formatted_headers.map(header => <th>{header}</th>)}
+                {formatted_headers.map((header: string) => <th>{header}</th>)}
             </tr>
         )
     }
 
-    buildRows (tableData) {
-        return tableData.map(player => {
-
-            // dict
-            const player_data = Object.values(player);
-
-            // list
-            const player_data_values = Object.values(player_data)[0];
-            const player_data_values_list = Object.values(player_data_values);
-
-            // list of <td>s
-            const formatted_player_data = (input) => {
-                return input.map(data => <td>{Math.round(data)}</td>);
+    buildRows (tableData: TableObjectList) {
+        const rows: Array<any> = tableData.map((player: TableObject) => {
+            const player_name: string = Object.keys(player)[0];
+            // $FlowFixMe
+            const player_data_values: TableObjectValues = Object.values(player)[0];
+            // $FlowFixMe
+            const player_data_values_list: Array<number> = Object.values(player_data_values); 
+            const formatted_player_data = (input: Array<number>) => {
+                return input.map((data: number) => <td>{Math.round(data)}</td>);
             }
 
             return <tr>
-                <td>{Object.keys(player)[0]}</td>
+                <td>{player_name}</td>
                 {formatted_player_data(player_data_values_list)}
             </tr>
         })    
+
+        return rows;
     }
 
     render() {
