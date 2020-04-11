@@ -1,29 +1,86 @@
-import React, { Component } from 'react';
+// @flow
+
+import * as React from 'react';
+import { Component } from 'react';
 import api from './api';
 import H2HTable from './H2HTable';
+import type { TableObjectList, TableObject } from './H2HTable';
 
-const CHOSE_A_PLAYER_DEFAULT = "Chose a player..."
+type Elo = {
+    name: string,
+    elo: number
+};
 
-class H2HPage extends Component {
+type Elos = Array<Elo>;
 
-    constructor(props){
+type PlayerObject = {
+    name: string,
+    ps_handle: string
+};
+
+type PlayerObjectList = Array<PlayerObject>;
+
+type AxiosResponse<DataType> = {
+    data: DataType,
+    status: number,
+    statusText: string,
+    headers: any,
+    config: any,
+    request: any
+};
+
+type PairOfRatings = [number, number];
+
+type PairOfNames = [string, string];
+
+type PairOfR = [number, number];
+
+type PairOfE = [number, number];
+
+type PairOfEStrings = [string, string];
+
+type PairOfNameAndWinPct = [string, string];
+
+type PairOfWinPctTDs = [React.Element<'td'>, React.Element<'td'>]
+
+type State = {
+    players: PlayerObjectList,
+    table_data: TableObjectList,
+    e_values: Array<number>,
+    elos: Elos,
+    submitted: boolean,
+    player_1?: ?string,
+    player_2?: ?string
+};
+
+type Props = {};
+
+const CHOSE_A_PLAYER_DEFAULT: string = "Chose a player..."
+
+class H2HPage extends Component<Props, State> {
+
+    constructor(props: Props){
         super(props)
 
+        // how to declare a type for this.state?
         this.state = {
             players: [],
-            table_data: undefined,
+            table_data: [],
             e_values: [],
-            elos: undefined,
+            elos: [],
             submitted: false
         };
 
+        // https://github.com/facebook/flow/issues/5874
+        // $FlowFixMe
         this.submit = this.submit.bind(this);
     }
 
-    extractElos(data) {
-        let elos = data.map(entry => {
-            let elo = {
+    extractElos(data: TableObjectList) {
+        let elos: Elos = data.map((entry: TableObject) => {
+            let elo: Elo = {
                 name: Object.keys(entry)[0],
+                // $FlowFixMe
                 elo: Object.values(entry)[0].a_Elo
             };
             return elo;
@@ -33,13 +90,15 @@ class H2HPage extends Component {
 
     componentDidMount() {
         api.getPlayers(
-            (result) => {
+            (result: AxiosResponse<PlayerObjectList>) => {
+                console.log("Raw result was: %o", result);
                 this.setState({players: result.data});
             }
         );
     }
 
-    handleSelectChange = event => {
+    handleSelectChange = (event: SyntheticEvent<HTMLSelectElement>) => {
+        // $FlowFixMe
         const {name,value} = event.target;
 
         if (value === CHOSE_A_PLAYER_DEFAULT) {
@@ -53,49 +112,49 @@ class H2HPage extends Component {
         }
     }
 
-    calcE(r_list) {
-        const arrSum = arr => arr.reduce((a,b) => a + b, 0);
-        
-        r_list.map(r_value => r_value / arrSum);
+    computeWinChance(names: PairOfNames, data: PairOfRatings): PairOfWinPctTDs{
+        // $FlowFixMe
+        const list_of_r: PairOfR = data.map((rating: number) => Math.pow(10, (rating / 400)))
 
-    }
+        const sum_of_r: number = list_of_r.reduce((a: number, b: number) => a + b, 0);
 
-    computeWinChance(names, data) {
-        const list_of_r = data.map(rating => Math.pow(10, (rating / 400)))
+        // $FlowFixMe
+        const list_of_e: PairOfE = list_of_r.map((r: number) => r / sum_of_r);
 
-        const sum_of_r = list_of_r.reduce((a,b) => a + b, 0);
+        // $FlowFixMe
+        const rounded_e: PairOfE = list_of_e.map((e: number) => Math.round((e * 100)));
 
-        const list_of_e = list_of_r.map(r => r / sum_of_r);
+        // $FlowFixMe
+        const formatted_e: PairOfEStrings = rounded_e.map((e: number) => String(e).concat("%"));
 
-        const rounded_e = list_of_e.map(e => Math.round((e * 100)));
+        const dummy_list: Array<number> = [0,1];
 
-        const formatted_e = rounded_e.map(e => String(e).concat("%"));
-
-        const dummy_list = [0,1];
-
-        const e_and_names = dummy_list.map(i => {
+        // $FlowFixMe
+        const e_and_names: PairOfNameAndWinPct = dummy_list.map((i: number) => {
             return names[i].concat(": ").concat(formatted_e[i]);
         });
 
-        const e_and_names_td = e_and_names.map(item => <td className="text-center">{item}</td>);
-
-        return e_and_names_td;
+        // $FlowFixMe
+        return e_and_names.map(item => <td className="text-center">{item}</td>);
     }
 
-    async submit(ev) {
+    async submit(ev: SyntheticEvent<>) {
         ev.preventDefault();
 
         console.log("Submitted!");
 
         this.setState({submitted: true});
-        let names = [this.state.player_1, this.state.player_2]
+        
+        if (this.state.player_1 && this.state.player_2) {
+            let names: PairOfNames = [this.state.player_1, this.state.player_2]
 
-        api.getH2HData(names)
-        .then(result => {
-            this.setState({table_data: result.data});
-            let elos = this.extractElos(result.data);
-            this.setState({elos: elos});
-        })
+            api.getH2HData(names)
+            .then((result: AxiosResponse<TableObjectList>) => {
+                this.setState({table_data: result.data});
+                let elos = this.extractElos(result.data);
+                this.setState({elos: elos});
+            })
+        } 
     }
 
     render() {
@@ -111,24 +170,24 @@ class H2HPage extends Component {
                 <table>
                     <tr>
                         <td>
-                        <label className="text-center">First player</label>
-                    <select
-                        name="player_1"
-                        value={this.state.player_1}
-                        onChange={this.handleSelectChange}>
-                        <option>{CHOSE_A_PLAYER_DEFAULT}</option>
-                        {player_list}    
-                    </select>
+                            <label className="text-center">First player</label>
+                            <select
+                                name="player_1"
+                                value={this.state.player_1}
+                                onChange={this.handleSelectChange}>
+                                <option>{CHOSE_A_PLAYER_DEFAULT}</option>
+                                {player_list}    
+                            </select>
                         </td>    
                         <td>
                             <label className="text-center">Second player</label>
-                        <select
-                            name="player_2"
-                            value={this.state.player_2}
-                            onChange={this.handleSelectChange}>
-                            <option>{CHOSE_A_PLAYER_DEFAULT}</option>
-                            {player_list}    
-                        </select>
+                            <select
+                                name="player_2"
+                                value={this.state.player_2}
+                                onChange={this.handleSelectChange}>
+                                <option>{CHOSE_A_PLAYER_DEFAULT}</option>
+                                {player_list}    
+                            </select>
                         </td>
                     </tr>
                 </table>
@@ -159,11 +218,13 @@ class H2HPage extends Component {
                             <table>
                             <tr>
                                 {this.computeWinChance(
-                                    Object.values(this.state.elos).map(value => value.name),
-                                    Object.values(this.state.elos).map(value => value.elo)
+                                    // $FlowFixMe
+                                    Object.values(this.state.elos).map((value: Elo) => value.name),
+                                    // $FlowFixMe
+                                    Object.values(this.state.elos).map((value: Elo) => value.elo)
                                 )}
                             </tr>
-                        </table>
+                            </table>
                     } 
                 </div>
                     <h4>Head to Head Leaderboard</h4>
