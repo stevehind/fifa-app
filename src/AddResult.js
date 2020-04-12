@@ -13,11 +13,11 @@ class AddResults extends Component {
             clicked: false,
             players: [],
             server_success: null,
-            submitted_to_server: null,
+            submitted_to_server: false,
             clubs: []
         }
 
-        this.submit = this.submit.bind(this);
+        this.submitFormToServer = this.submitFormToServer.bind(this);
     }
 
     componentDidMount(){
@@ -56,6 +56,11 @@ class AddResults extends Component {
         }
     }
 
+    getFormData = object => Object.keys(object).reduce((formData, key) => {
+        formData.append(key, object[key]);
+        return formData;
+    }, new FormData());
+
     validateForm = state => {
         if (
             state.home === undefined ||
@@ -69,13 +74,13 @@ class AddResults extends Component {
         }
     }
 
-    getFormData = object => Object.keys(object).reduce((formData, key) => {
-        formData.append(key, object[key]);
-        return formData;
-    }, new FormData());
+    previewForm = (event) => {
+        event.preventDefault();
 
+        this.setState({ result_ready_for_preview: true });
+    }
 
-    async submit(ev) {
+    async submitFormToServer(ev) {
         ev.preventDefault();
 
         this.setState({ submitted_to_server : true });
@@ -88,9 +93,9 @@ class AddResults extends Component {
             // uncomment below for development
             //comment: "dev-test"
             comment: this.state.comment
-        }
+        };
 
-        let error_message = "Error: didn't post to server. Make sure you've provided two different players' names, and two scores."
+        let error_message = "Error: didn't post to server. Make sure you've provided two different players' names, and two scores.";
 
         api.addResult(body)
         .then(response => {
@@ -117,7 +122,7 @@ class AddResults extends Component {
         });
     }
 
-    handleReveal = (event) => {
+    handleFormReset = (event) => {
         event.preventDefault();
         this.setState({
             clicked: true,
@@ -128,7 +133,8 @@ class AddResults extends Component {
             away: undefined,
             away_score: undefined,
             comment: null,
-            error: undefined
+            error: undefined,
+            result_ready_for_preview: undefined
         })
     }
 
@@ -150,7 +156,7 @@ class AddResults extends Component {
             <option>{club.name}</option>
         );
 
-        if(this.state.clicked && !this.state.server_success && !this.state.submitted_to_server) return (
+        if(this.state.clicked && !this.state.server_success && !this.state.submitted_to_server && !this.state.result_ready_for_preview) return (
             
             <div className="small-container padding-top">
                 <form>
@@ -212,12 +218,39 @@ class AddResults extends Component {
                 </form>
                 {
                     this.validateForm(this.state) ?
-                    <button onClick={this.submit}>Add result!</button>
+                    <button onClick={this.previewForm}>Preview result...</button>
                     :
-                    <button onClick={this.submit} className="muted-button" disabled={true}>Fill out the form!</button>
+                    <button className="muted-button" disabled={true}>Fill out the form!</button>
                 }
             </div>
         )
+
+        else if (this.state.result_ready_for_preview && !this.state.submitted_to_server) return (
+            <div className="small-container left-right-padding padding-top padding-bottom">
+                <h4>Please preview result before submitting.</h4>
+                <table>
+                    <tr>
+                        <th>Side</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                    </tr>
+                    <tr>
+                        <td>Home</td>
+                        <td>{home}</td>
+                        <td>{home_score}</td>
+                    </tr>
+                    <tr>
+                        <td>Away</td>
+                        <td>{away}</td>
+                        <td>{away_score}</td>
+                    </tr>
+                </table>
+                <div className="left-right-padding">
+                    <button className="float-left" onClick={this.submitFormToServer}>Submit to server</button>
+                    <button className="float-right" onClick={this.handleFormReset}>Re-fill form</button>
+                </div>
+            </div>
+        )       
 
         else if(!this.state.server_success && this.state.submitted_to_server && this.state.error === undefined) return (
             <div className="small-container padding-top padding-bottom">
@@ -229,7 +262,7 @@ class AddResults extends Component {
         else if (!this.state.server_success && this.state.submitted_to_server && this.state.error) return (
             <div className="small-container padding-top padding-bottom">
                 <h2 style={{ color: 'red' }}>{error}</h2>
-                <button onClick={this.handleReveal}>Try again</button>
+                <button onClick={this.handleFormReset}>Try again</button>
             </div>
         )
 
@@ -237,14 +270,19 @@ class AddResults extends Component {
         else if(this.state.server_success && this.state.submitted_to_server) return (
             <div className="small-container padding-top padding-bottom">
                 <p>Success! Result saved to the sever.</p>
-                <p>Winner was: {result.winner} by {result.goal_diff}.</p>
-                <button onClick={this.handleReveal}>Add another</button>
+                {
+                    result.winner === "Draw" ?
+                    <p>The result was a {result.winner}.</p>
+                    :
+                    <p>Winner was: {result.winner} by {result.goal_diff}.</p>   
+                }
+                <button onClick={this.handleFormReset}>Add another</button>
             </div>
         )
 
         else return(
             <div className="small-container padding-top padding-bottom">
-                <button onClick={this.handleReveal}>Add Result</button>
+                <button onClick={this.handleFormReset}>Add Result</button>
             </div>        
         )
     }
