@@ -467,6 +467,14 @@ dd {
   padding-right: 3rem;
 }
 
+.left-padding {
+  padding-left: 3rem;
+}
+
+.right-padding {
+  padding-right: 3rem;
+}
+
 .no-padding-top {
   padding-top: 0; }
 
@@ -676,7 +684,7 @@ td {
 
 th,
 td {
-  text-align: left;
+  text-align: center;
   padding: .5rem; }
 
 caption {
