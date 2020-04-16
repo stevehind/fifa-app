@@ -6,9 +6,9 @@ export type AxiosResponse<DataType> = {
     data: DataType,
     status: number,
     statusText: string,
-    headers: any,
+    headers?: any,
     config?: any,
-    request: any
+    request?: any
 };
 
 type GameResult = {
