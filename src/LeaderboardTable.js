@@ -1,8 +1,13 @@
+// @flow
+
 import React, { Component } from 'react';
+
+import type { TableObjectList } from './api';
+
 
 class LeaderboardTable extends Component {
 
-    buildHeaders (tableData) {
+    buildHeaders (tableData: LeaderboardTable) {
         const first_entry_in_list = tableData[0];
 
         const entry_values = Object.values(first_entry_in_list)[0];
@@ -20,7 +25,7 @@ class LeaderboardTable extends Component {
         )
     }
 
-    buildRows (tableData) {
+    buildRows (tableData: LeaderboardTable) {
         return tableData.map(player => {
 
             // dict

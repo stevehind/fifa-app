@@ -246,8 +246,10 @@ class AddResults extends Component {
                     </tr>
                 </table>
                 <div className="left-right-padding">
-                    <button className="float-left" onClick={this.submitFormToServer}>Submit to server</button>
-                    <button className="float-right" onClick={this.handleFormReset}>Re-fill form</button>
+                    <button onClick={this.submitFormToServer}>Submit to server</button>
+                </div>
+                <div className="left-right-padding">
+                    <button onClick={this.handleFormReset}>Re-fill form</button>
                 </div>
             </div>
         )       
