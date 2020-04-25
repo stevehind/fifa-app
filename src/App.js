@@ -6,6 +6,7 @@ import AddResult from './AddResult';
 import LeaderboardPage from './LeaderboardPage';
 import ResultsPage from './ResultsPage';
 import H2HPage from './H2HPage';
+import Login from "./Login";
 
 function App() {
 
@@ -30,6 +31,9 @@ function App() {
         </div>
         <div>
           <PlayerList/>
+        </div>
+        <div>
+          <Login/>
         </div>
       </div>
       <footer className="App-footer">

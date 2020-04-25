@@ -11,6 +11,18 @@ export type AxiosResponse<DataType> = {
     request?: any
 };
 
+export type AxiosError<DataType> = {
+    response: AxiosResponse<DataType>,
+    headers: any,
+    config?: any,
+    data: DataType
+}
+
+export type AuthPayload = ?{
+    name: string,
+    password: string
+}
+
 type GameResult = {
     away: string,
     away_score: number,
@@ -77,9 +89,31 @@ const getClubs = (callback, error) => {
     .catch(error)
 }
 
+// get from the server, with a cookie
+const validateCookie = (callback: AxiosResponse<string>, error) => {
+    axios(`${HOST}/must-be-authed`, {
+            method: "get",
+            withCredentials: true
+    })
+    .then(callback)
+    .catch(error)
+}
+
+// post a username and password to the server and receive a respnose back
+const validateLogin = (data: AuthPayload) => {
+    return axios.post(`${HOST}/login`, data)
+    .then((res: AxiosResponse<string>) => {
+        return res;
+    })
+    .catch((error: AxiosError<AxiosResponse<string>>) => {
+        return error;
+    })
+}
+
 // post to the /add-result api
 const addResult = (data: GameResult) => {
-    return axios.post(`${HOST}/add-result`, data)
+    return axios.post(
+        `${HOST}/add-result`, data)
     .then((res: AxiosResponse<GameResponse>) => {
         if (res.status === 200) {
             return res.data;
@@ -133,7 +167,9 @@ const api = {
     getLeaderboardTableData : getLeaderboardTableData,
     getResultsListData: getResultsListData,
     getKOTLData: getKOTLData,
-    getH2HData: getH2HData
+    getH2HData: getH2HData,
+    validateCookie: validateCookie,
+    validateLogin: validateLogin
 }
 
 export default api;

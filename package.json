@@ -5,10 +5,12 @@
   "private": true,
   "dependencies": {
     "axios": "^0.19.2",
+    "js-cookie": "^2.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1"
   },
+  "proxy": "http://localhost:3000/",
   "scripts": {
     "start": "react-scripts start",
     "test": "jest",
