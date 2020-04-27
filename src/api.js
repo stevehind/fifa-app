@@ -23,6 +23,8 @@ export type AuthPayload = ?{
     password: string
 }
 
+export type CookieDict = { [string]: string }
+
 type GameResult = {
     away: string,
     away_score: number,
@@ -77,6 +79,8 @@ export type PlayerObjectList = Array<PlayerObject>;
 
 const HOST: string = 'https://stevehind-fifa-stats.builtwithdark.com/api/v1';
 
+//axios.defaults.withCredentials = true;
+
 const getPlayers = (callback: AxiosResponse<PlayerObjectList>, error) => {
     axios.get(`${HOST}/players`)
     .then(callback)
@@ -89,19 +93,20 @@ const getClubs = (callback, error) => {
     .catch(error)
 }
 
-// get from the server, with a cookie
-const validateCookie = (callback: AxiosResponse<string>, error) => {
-    axios(`${HOST}/must-be-authed`, {
-            method: "get",
-            withCredentials: true
+// post to the server, with the session token as the payload
+const validateCookie = (data: CookieDict) => {
+    return axios.post(`${HOST}/cookie`, data, { withCredentials: false })
+    .then((res: AxiosResponse<string>) => {
+        return res;
     })
-    .then(callback)
-    .catch(error)
+    .catch((error: AxiosError<AxiosResponse<string>>) => {
+        return error;
+    })
 }
 
 // post a username and password to the server and receive a respnose back
 const validateLogin = (data: AuthPayload) => {
-    return axios.post(`${HOST}/login`, data)
+    return axios.post(`${HOST}/login`, data, { withCredentials: false })
     .then((res: AxiosResponse<string>) => {
         return res;
     })

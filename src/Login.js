@@ -1,20 +1,27 @@
 // @flow
 
 import React, { Component } from 'react';
-import Cookies from 'js-cookie';
+// import Cookies from 'universal-cookie';
 import api from './api';
 import type { AxiosError, AxiosResponse, AuthPayload } from './api';
 
 type LoginStates = "Unsubmitted" | "Submitting" | "SubmittedSuccessfully" | "SubmittedWithErrors"
-type AuthWithCookieStates = "NotChecked" | "Succeeded" | "Failed"
+type AuthWithCookieStates = "NotChecked" | "Checking" | "Succeeded" | "Failed"
 
 type State = {
     name: string,
     password: string,
     login_state: LoginStates,
-    cookie_check_state: AuthWithCookieStates,
-    cookie_server_response: string
+    cookie_check_state: AuthWithCookieStates
 }
+
+type CookieObject = {
+    [string]: string 
+}
+
+// const cookies = new Cookies();
+// const cookie_path: string = ".builtwithdark.com"
+// const cookie_max_age: number = 60 * 60 * 24 * 30
 
 class Login extends Component<Props, State> {
 
@@ -49,21 +56,11 @@ class Login extends Component<Props, State> {
             else return false
     }
 
-    // handle the cookie authenticate button being pressed
-    handleCookieAuthenticate() {
-        let successCallback = (result: AxiosResponse<string>) => {
-            this.setState({
-                cookie_server_response: result.data,
-                cookie_check_state: "Succeeded"
-            });
-        };
-        let errorHandler = (error: AxiosError<AxiosResponse<string>>) => {
-            this.setState({ 
-                cookie_server_response: error.response.data,
-                cookie_check_state: "Failed"
-            });
-        }
-        api.validateCookie(successCallback, errorHandler);
+    // check whether login has succeeded
+    authenticationFinished = (state: State) => {
+        if (this.state.login_state === "SubmittedSuccessfully" || this.state.cookie_check_state === "Succeeded")
+            return true
+            else return false
     }
 
     handleTypedChange = (event: SyntheticEvent<>) => {
@@ -71,6 +68,34 @@ class Login extends Component<Props, State> {
         this.setState({ [event.target.name]: event.target.value });
     }
 
+    // handle the cookie authenticate button being pressed
+    async handleCookieAuthenticate(event: SyntheticEvent<>) {
+        event.preventDefault();
+
+        this.setState({ cookie_check_state: "Submitting" });
+
+        let stored_cookie: ?string = localStorage.getItem('fifa_stats') ? localStorage.getItem('fifa_stats') : '';
+
+        let cookie_payload: CookieObject = { 
+            fifa_stats: stored_cookie,
+            placeholder_item: 'item'
+         };
+
+        api.validateCookie(cookie_payload)
+        .then((result: AxiosResponse<String> | AxiosError<AxiosResponse<string>>) => {
+            console.log("Result: %o", result);
+            if (result.status === 400) {
+                console.log("Result status: %o", result.status);
+                this.setState({ cookie_check_state: "Failed" });
+            } else if (result.status === 200) {
+                this.setState({ cookie_check_state: "Succeeded" });
+            } else {
+                this.setState({ cookie_check_state: "Failed" });
+            }
+        });    
+
+    }
+    
     async attemptLogin(event: SyntheticEvent<>) {
         event.preventDefault();
 
@@ -81,57 +106,34 @@ class Login extends Component<Props, State> {
         }
 
         api.validateLogin(auth_payload)
-        .then((result: AxiosResponse<string> | AxiosError<AxiosResponse<string>>) => {
+        .then((result: AxiosResponse<CookieObject> | AxiosError<AxiosResponse<string>>) => {
             if (result.status === 401 || result.status === 500) {
                 this.setState({ login_state: "SubmittedWithErrors" });
             } else if (result.status === 200) {
-                console.log("Result.headers: %o", result.headers);
-                console.log("Cookie: %o", document.cookie);
+                // $FlowFixMe
+                let cookie_string: string = Object.values(result.data)[0];
+                let cookie_value: string = cookie_string.substring(11); 
+                localStorage.setItem('fifa_stats', cookie_value);
                 this.setState({ login_state: "SubmittedSuccessfully"});
             }            
         })
-
-        //Cookies.set(api_result.headers)
     } 
-
-    // async submit(ev: SyntheticEvent<>) {
-    //     ev.preventDefault();
-
-    //     this.setState({submitted: true});
-        
-    //     if (this.state.player_1 && this.state.player_2) {
-    //         let names: PairOfNames = [this.state.player_1, this.state.player_2]
-
-    //         api.getH2HData(names)
-    //         .then((result: AxiosResponse<TableObjectList>) => {
-    //             this.setState({table_data: result.data});
-    //             let elos = this.extractElos(result.data);
-    //             this.setState({elos: elos});
-    //         })
-    //     } 
-    // }
-
-    //handle text being entered into the form
-
-    //handle clicking submit on the form
-        // send what's in the form to the server
-        // return a response from the server
 
     render() {
         return (
-            <div className="small-container App-header">
-                <p className="text-center">This is the auth component.</p>
+            <div className="small-container alternate-background padding-top padding-bottom left-right-padding">
+                <h3 className="text-center">This is the auth component.</h3>
                 {/* Button asking someone to auth. Look for a cookie, if there is one, auth it via the server. If it works, say there's no need to auth further. */}
                 {
                     this.readyForInitialCheck(this.state) ?
-                    <button onClick={this.handleCookieAuthenticate}>Authenticate...</button>
-                    :
-                    <div>Login to authenticate.👇</div>
+                    <button onClick={this.handleCookieAuthenticate}>Authenticate...</button> :
+                    null
                 }
                 {/* If cookie auth fails, show a login form */}
                 {
                     this.readyForLoginForm(this.state) ?
                     <div className="App-body">
+                        <p>Sorry but you need to sign in!</p>
                         <form>
                             <label>Name:</label>
                             <input
@@ -164,7 +166,7 @@ class Login extends Component<Props, State> {
                     null
                 }
                 {
-                    this.state.login_state === "SubmittedSuccessfully" ?
+                    this.authenticationFinished(this.state) ?
                     <p>You are logged in.</p> :
                     null
                 }
