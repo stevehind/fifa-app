@@ -79,6 +79,9 @@ export type PlayerObjectList = Array<PlayerObject>;
 
 const HOST: string = 'https://stevehind-fifa-stats.builtwithdark.com/api/v1';
 
+const stored_cookie: ?string = localStorage.getItem('fifa_stats') || '';
+const auth_header: string = JSON.stringify({ fifa_stats: stored_cookie}); 
+
 //axios.defaults.withCredentials = true;
 
 const getPlayers = (callback: AxiosResponse<PlayerObjectList>, error) => {
@@ -93,20 +96,15 @@ const getClubs = (callback, error) => {
     .catch(error)
 }
 
-// post to the server, with the session token as the payload
-const validateCookie = (data: CookieDict) => {
-    return axios.post(`${HOST}/cookie`, data, { withCredentials: false })
-    .then((res: AxiosResponse<string>) => {
-        return res;
-    })
-    .catch((error: AxiosError<AxiosResponse<string>>) => {
-        return error;
-    })
+const validateCookie = (callback, error) => {
+    axios.get(`${HOST}/cookie`, { withCredentials: false, headers: { authentication: auth_header}})
+    .then(callback)
+    .catch(error)
 }
 
 // post a username and password to the server and receive a respnose back
 const validateLogin = (data: AuthPayload) => {
-    return axios.post(`${HOST}/login`, data, { withCredentials: false })
+    return axios.post(`${HOST}/login`, data, { withCredentials: false, headers: { authentication: auth_header} })
     .then((res: AxiosResponse<string>) => {
         return res;
     })

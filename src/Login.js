@@ -1,12 +1,11 @@
 // @flow
 
 import React, { Component } from 'react';
-// import Cookies from 'universal-cookie';
 import api from './api';
 import type { AxiosError, AxiosResponse, AuthPayload } from './api';
 
-type LoginStates = "Unsubmitted" | "Submitting" | "SubmittedSuccessfully" | "SubmittedWithErrors"
-type AuthWithCookieStates = "NotChecked" | "Checking" | "Succeeded" | "Failed"
+type LoginStates = "Unsubmitted" | "Submitting" | "Succeeded" | "Failed"
+type AuthWithCookieStates = "Unsubmitted" | "Submitting" | "Succeeded" | "Failed"
 
 type State = {
     name: string,
@@ -18,10 +17,6 @@ type State = {
 type CookieObject = {
     [string]: string 
 }
-
-// const cookies = new Cookies();
-// const cookie_path: string = ".builtwithdark.com"
-// const cookie_max_age: number = 60 * 60 * 24 * 30
 
 class Login extends Component<Props, State> {
 
@@ -41,7 +36,7 @@ class Login extends Component<Props, State> {
 
     // check whether we're ready to check cookie authentication
     readyForInitialCheck = (state: State) => {
-        if (state.login_state === "Unsubmitted" && state.cookie_check_state === "NotChecked")
+        if (state.login_state === "Unsubmitted" && state.cookie_check_state === "Unsubmitted")
         {
             return true
         } else {
@@ -51,14 +46,14 @@ class Login extends Component<Props, State> {
 
     // check whether to render the login form
     readyForLoginForm = (state: State) => {
-        if (state.cookie_check_state === "Failed" && (state.login_state === "Unsubmitted" || state.login_state === "SubmittedWithErrors" || state.login_state === "Submitting"))
+        if (state.cookie_check_state === "Failed" && (state.login_state === "Unsubmitted" || state.login_state === "Failed" || state.login_state === "Submitting"))
             return true
             else return false
     }
 
     // check whether login has succeeded
     authenticationFinished = (state: State) => {
-        if (this.state.login_state === "SubmittedSuccessfully" || this.state.cookie_check_state === "Succeeded")
+        if (this.state.login_state === "Succeeded" || this.state.cookie_check_state === "Succeeded")
             return true
             else return false
     }
@@ -74,15 +69,7 @@ class Login extends Component<Props, State> {
 
         this.setState({ cookie_check_state: "Submitting" });
 
-        let stored_cookie: ?string = localStorage.getItem('fifa_stats') ? localStorage.getItem('fifa_stats') : '';
-
-        let cookie_payload: CookieObject = { 
-            fifa_stats: stored_cookie,
-            placeholder_item: 'item'
-         };
-
-        api.validateCookie(cookie_payload)
-        .then((result: AxiosResponse<String> | AxiosError<AxiosResponse<string>>) => {
+        api.validateCookie((result: AxiosResponse<String> | AxiosError<AxiosResponse<string>>) => {
             console.log("Result: %o", result);
             if (result.status === 400) {
                 console.log("Result status: %o", result.status);
@@ -92,8 +79,7 @@ class Login extends Component<Props, State> {
             } else {
                 this.setState({ cookie_check_state: "Failed" });
             }
-        });    
-
+        });
     }
     
     async attemptLogin(event: SyntheticEvent<>) {
@@ -108,13 +94,13 @@ class Login extends Component<Props, State> {
         api.validateLogin(auth_payload)
         .then((result: AxiosResponse<CookieObject> | AxiosError<AxiosResponse<string>>) => {
             if (result.status === 401 || result.status === 500) {
-                this.setState({ login_state: "SubmittedWithErrors" });
+                this.setState({ login_state: "Failed" });
             } else if (result.status === 200) {
                 // $FlowFixMe
                 let cookie_string: string = Object.values(result.data)[0];
                 let cookie_value: string = cookie_string.substring(11); 
                 localStorage.setItem('fifa_stats', cookie_value);
-                this.setState({ login_state: "SubmittedSuccessfully"});
+                this.setState({ login_state: "Succeeded"});
             }            
         })
     } 
@@ -157,7 +143,7 @@ class Login extends Component<Props, State> {
                             null
                         }
                         {
-                            this.state.login_state === "SubmittedWithErrors" ?
+                            this.state.login_state === "Failed" ?
                             <p>Login failed. Please try again.</p> :
                             null
                         }
